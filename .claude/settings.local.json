@@ -3,7 +3,14 @@
     "allow": [
       "WebSearch",
       "WebFetch(domain:colyseus.io)",
-      "Bash(gh auth:*)"
+      "Bash(gh auth:*)",
+      "Bash(gh repo:*)",
+      "Bash(gh project:*)",
+      "Bash(python3 -m json.tool)",
+      "Bash(npm install:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
