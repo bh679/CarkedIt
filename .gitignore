@@ -3,3 +3,6 @@ test-results/
 playwright-report/
 .env
 .DS_Store
+carkedit-client/
+carkedit-api/
+carkedit-client.wiki/
