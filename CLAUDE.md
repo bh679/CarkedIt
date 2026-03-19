@@ -134,6 +134,9 @@ gh project item-edit --project-id <id> --id <item-id> --field-id <status-field-i
 git worktree add ../worktrees/carkedit-<feature-slug> -b dev/<feature-slug>
 cd ../worktrees/carkedit-<feature-slug>
 npm install
+
+# If this is a carkedit-client worktree, create a local config pointing at the feature API port:
+echo '{"serverUrl": "http://localhost:<API_PORT>"}' > config.json
 ```
 
 ### Worktree Teardown (after Gate 3 merge)
@@ -156,6 +159,14 @@ rm ./ports/<session-id>.json
 ```
 
 Base port: `4500`. If occupied, increment by 1 until a free port is found.
+
+**Port assignments (default):**
+- `4500` — carkedit-client (static http-server)
+- `4501` — carkedit-api (production / main branch)
+- `4502+` — feature branch API servers (one per active worktree)
+
+The client reads its API target from `config.json` (gitignored). Set this file in every
+client worktree to point at the correct API port. See Worktree Setup above.
 
 ---
 
