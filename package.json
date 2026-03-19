@@ -1,0 +1,16 @@
+{
+  "name": "carkedit",
+  "version": "1.0.0",
+  "description": "Project-level configuration for CarkedItOnline. Contains the Product Engineer agent instructions, permissions, and test configuration.",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:report": "playwright show-report"
+  },
+  "keywords": [],
+  "author": "bh679",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
+  }
+}
