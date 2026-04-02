@@ -62,7 +62,7 @@ After implementation is complete:
 2. Take screenshots of the feature
 3. Enter plan mode and present a **Gate 2 Testing Report**:
    - Screenshot paths (for blogging)
-   - Clickable local URLs: client `http://localhost:<CLIENT_PORT>` and API `http://localhost:<API_PORT>`
+   - Clickable local URL: `http://localhost:<PORT>` (use the port claimed for this session)
    - Step-by-step user testing instructions
    - Automated test result summary
 4. Wait for user approval
@@ -149,8 +149,8 @@ git branch -d dev/<feature-slug>
 
 <!-- Full policy: ~/.claude/playbooks/port-management.md -->
 
-This project needs **two** servers running simultaneously: the API (Colyseus game server)
-and the client (static http-server). Each session must claim ports for both.
+The API server serves both the game backend and the client static files, so each session
+only needs **one** port. Each session must claim a unique port to avoid conflicts.
 
 **Before claiming any port**, scan for conflicts:
 
@@ -219,7 +219,7 @@ Update `package.json` version field on every commit.
 
 ```bash
 # Use the API port claimed for this session (see Port Management section)
-curl -s http://localhost:<API_PORT>/api/<endpoint> | jq .
+curl -s http://localhost:<PORT>/api/<endpoint> | jq .
 ```
 
 ### UI Testing (Playwright MCP)
