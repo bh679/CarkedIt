@@ -13,9 +13,9 @@ human oversight at each stage.
 
 - **Project:** CarkedItOnline
 - **Live URL:** carkedit.com
-- **Repos:** carkedit-client, carkedit-api
+- **Repos:** carkedit-online, carkedit-api
 - **GitHub Project:** https://github.com/bh679?tab=projects (Project #10)
-- **Wiki:** github.com/bh679/carkedit-client/wiki
+- **Wiki:** github.com/bh679/carkedit-online/wiki
 
 ---
 
@@ -135,7 +135,7 @@ git worktree add ../worktrees/carkedit-<feature-slug> -b dev/<feature-slug>
 cd ../worktrees/carkedit-<feature-slug>
 npm install
 
-# If this is a carkedit-client worktree, create a local config pointing at the feature API port:
+# If this is a carkedit-online worktree, create a local config pointing at the feature API port:
 echo '{"serverUrl": "http://localhost:<API_PORT>"}' > config.json
 ```
 
@@ -161,7 +161,7 @@ rm ./ports/<session-id>.json
 Base port: `4500`. If occupied, increment by 1 until a free port is found.
 
 **Port assignments (default):**
-- `4500` — carkedit-client (static http-server)
+- `4500` — carkedit-online (static http-server)
 - `4501` — carkedit-api (production / main branch)
 - `4502+` — feature branch API servers (one per active worktree)
 
@@ -214,8 +214,8 @@ capture and queue the feature context for the weekly blog agent.
 ## Documentation
 
 After Gate 3 merge, update the relevant wiki:
-- **Client/frontend features** → github.com/bh679/carkedit-client/wiki
-- **Deployment-impacting changes** → update `Deployment-*.md` pages in github.com/bh679/carkedit-client/wiki
+- **Client/frontend features** → github.com/bh679/carkedit-online/wiki
+- **Deployment-impacting changes** → update `Deployment-*.md` pages in github.com/bh679/carkedit-online/wiki
 - Follow the wiki CLAUDE.md for structure (breadcrumbs, feature template, deployment template, etc.)
 
 <!-- Wiki writing standards: github.com/bh679/claude-templates/standards/wiki-writing.md -->

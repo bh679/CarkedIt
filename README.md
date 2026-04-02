@@ -2,7 +2,7 @@
 
 Multiplayer card game web application.
 
-**[CarkedIt.com](https://carkedit.com)** | [Client Repo](https://github.com/bh679/carkedit-client) | [API Repo](https://github.com/bh679/carkedit-api) | [Project Board](https://github.com/users/bh679/projects/10)
+**[CarkedIt.com](https://carkedit.com)** | [Client Repo](https://github.com/bh679/carkedit-online) | [API Repo](https://github.com/bh679/carkedit-api) | [Project Board](https://github.com/users/bh679/projects/10)
 
 ---
 
@@ -13,7 +13,7 @@ This is the **orchestrator repo** containing project-level configuration, Playwr
 | Repo | Purpose |
 |---|---|
 | [CarkedIt](https://github.com/bh679/CarkedIt) | Orchestrator — tests, config, workflow |
-| [carkedit-client](https://github.com/bh679/carkedit-client) | Frontend client |
+| [carkedit-online](https://github.com/bh679/carkedit-online) | Frontend client |
 | [carkedit-api](https://github.com/bh679/carkedit-api) | Game server (Node.js + Colyseus) |
 
 ## Setup
