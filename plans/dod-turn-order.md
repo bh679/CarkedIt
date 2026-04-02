@@ -145,7 +145,7 @@ npx jest src/utils/turnOrder.test.ts
 
 # Integration: start server and join with multiple players via lobby
 npm run dev  # port 2567
-# Open carkedit-client and join 4 players with different birthdays
+# Open carkedit-online and join 4 players with different birthdays
 # Observe lobby turn order reflects DOD rotation
 ```
 

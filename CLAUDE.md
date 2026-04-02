@@ -13,9 +13,9 @@ human oversight at each stage.
 
 - **Project:** CarkedItOnline
 - **Live URL:** carkedit.com
-- **Repos:** carkedit-client, carkedit-api
+- **Repos:** carkedit-online, carkedit-api
 - **GitHub Project:** https://github.com/bh679?tab=projects (Project #10)
-- **Wiki:** github.com/bh679/carkedit-client/wiki
+- **Wiki:** github.com/bh679/carkedit-online/wiki
 
 ---
 
@@ -212,8 +212,8 @@ capture and queue the feature context for the weekly blog agent.
 ## Documentation
 
 After Gate 3 merge, update the relevant wiki:
-- **Client/frontend features** → github.com/bh679/carkedit-client/wiki
-- **Deployment-impacting changes** → update `Deployment-*.md` pages in github.com/bh679/carkedit-client/wiki
+- **Client/frontend features** → github.com/bh679/carkedit-online/wiki
+- **Deployment-impacting changes** → update `Deployment-*.md` pages in github.com/bh679/carkedit-online/wiki
 - Follow the wiki CLAUDE.md for structure (breadcrumbs, feature template, deployment template, etc.)
 
 <!-- Wiki writing standards: github.com/bh679/claude-templates/standards/wiki-writing.md -->
