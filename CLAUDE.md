@@ -62,7 +62,7 @@ After implementation is complete:
 2. Take screenshots of the feature
 3. Enter plan mode and present a **Gate 2 Testing Report**:
    - Screenshot paths (for blogging)
-   - Clickable local URL: `http://localhost:4500`
+   - Clickable local URL: `http://localhost:<PORT>` (use the port claimed for this session)
    - Step-by-step user testing instructions
    - Automated test result summary
 4. Wait for user approval
@@ -147,24 +147,54 @@ git branch -d dev/<feature-slug>
 
 ### Port Management
 
-Each session claims a unique port to avoid conflicts:
+<!-- Full policy: ~/.claude/playbooks/port-management.md -->
+
+The API server serves both the game backend and the client static files, so each session
+only needs **one** port. Each session must claim a unique port to avoid conflicts.
+
+**Before claiming any port**, scan for conflicts:
 
 ```bash
-# Claim a port
-echo '{"port": 4500, "session": "<session-id>", "feature": "<feature-slug>"}' > ./ports/<session-id>.json
+# 1. Check existing claims
+cat ./ports/*.json 2>/dev/null | jq -r '.port'
+
+# 2. Check actually listening ports in the 4500-4520 range
+lsof -iTCP:4500-4520 -sTCP:LISTEN -P -n 2>/dev/null | awk 'NR>1{print $9}' | sort -u
+```
+
+**Port allocation procedure:**
+
+1. Start at base port `4500`
+2. Scan `./ports/*.json` AND `lsof` for occupied ports
+3. Pick the first free port — write the claim file
+
+```bash
+# Find first free port (starting from 4500, skip any occupied)
+PORT=<first free port>
+
+# Claim the port
+echo '{"port": '$PORT', "session": "<session-id>", "feature": "<feature-slug>"}' > ./ports/<session-id>.json
 
 # Release port after session ends
 rm ./ports/<session-id>.json
 ```
 
-Base port: `4500`. If occupied, increment by 1 until a free port is found.
+**Starting the server:**
 
-**Port assignments (default):**
+The API server serves both the API and the client static files via `express.static()`.
+Only one port is needed per session. The client uses the same-origin fallback in
+`config.js` — no `config.json` is needed when client and API share a port.
+
+```bash
+cd <api-worktree> && PORT=$PORT npm start
+```
+
+**Port assignments (default when no conflicts):**
 - `4500` — carkedit-api (serves both API and client static files)
 - `4501+` — feature branch API servers (one per active worktree)
 
-The API server serves the client via `express.static()`. The client uses the same-origin
-fallback in `config.js` — no `config.json` is needed when client and API share a port.
+**Stale claims:** If a claim file exists but `lsof -i :<port> | grep LISTEN` shows
+nothing, the claim is stale — delete it and reuse the port.
 
 ---
 
@@ -188,7 +218,8 @@ Update `package.json` version field on every commit.
 ### API Testing
 
 ```bash
-curl -s http://localhost:4500/api/<endpoint> | jq .
+# Use the API port claimed for this session (see Port Management section)
+curl -s http://localhost:<PORT>/api/<endpoint> | jq .
 ```
 
 ### UI Testing (Playwright MCP)
