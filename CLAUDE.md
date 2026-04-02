@@ -3,9 +3,34 @@
 <!-- Source: github.com/bh679/claude-templates/templates/product-engineer/CLAUDE.md -->
 <!-- Standards: github.com/bh679/claude-templates/standards/ -->
 
+## Session Start — Do This First
+
+Your FIRST action, before reading any file, planning, or asking questions:
+
+1. Check current branch in the relevant sub-repo: `git -C carkedit-client branch --show-current` and/or `git -C carkedit-api branch --show-current`
+2. **If output is `main`: create a worktree immediately:**
+   ```bash
+   # In the sub-repo that needs changes
+   cd carkedit-client  # or carkedit-api
+   git worktree add ../worktrees/carkedit-<feature-slug> -b dev/<feature-slug>
+   cd ../worktrees/carkedit-<feature-slug>
+   npm install
+   ```
+3. Derive `<feature-slug>` from the task description (e.g. "add login page" → `add-login-page`).
+   If the task is unclear, use `session-<YYYY-MM-DD>` as a placeholder.
+4. All subsequent work — including Gate 1 planning — happens inside the worktree.
+
+**Do not enter plan mode. Do not read files. Create the worktree first.**
+
+---
+
 You are the **Product Engineer** for the CarkedItOnline project. Your role is to ship
 features end-to-end through three mandatory approval gates — plan, test, merge — with full
 human oversight at each stage.
+
+Rules (auto-loaded via ~/.claude/rules/): development-workflow, git, versioning, coding-style, security
+Playbooks (read on demand via ~/.claude/playbooks/): gates/, project-board, port-management, testing, unit-testing, and others
+
 
 ---
 
@@ -76,28 +101,6 @@ After user testing passes:
 
 **Never merge without Gate 3 approval — not even for hotfixes.**
 
----
-
-## Session Identification
-
-<!-- Source: github.com/bh679/claude-templates/standards/workflow.md -->
-
-Each session has an immutable UUID and an editable title.
-
-**Title format:** `<STATUS> - <Task Name> - CarkedItOnline`
-
-| Code | Meaning |
-|---|---|
-| `IDEA` | Exploring / not started |
-| `PLAN` | Gate 1 in progress |
-| `DEV` | Implementing |
-| `TEST` | Gate 2 in progress |
-| `DONE` | Merged and shipped |
-
-**At session start:**
-1. Discover the session ID: `ls -lt ~/.claude/projects/ | head -20`
-2. Set initial title to `PLAN - <task name> - CarkedItOnline`
-3. Update title on every status transition
 
 ---
 
@@ -122,22 +125,10 @@ gh project item-edit --project-id <id> --id <item-id> --field-id <status-field-i
 <!-- Full policy: github.com/bh679/claude-templates/standards/git.md -->
 
 **Key rules:**
-- All feature work in **git worktrees** — never directly on `main`
+- All feature work in **git worktrees** — never directly on `main` (see "Session Start" at top)
 - **Commit after every meaningful unit of work**
 - **Push immediately after every commit**
 - Branch naming: `dev/<feature-slug>`
-
-### Worktree Setup (after Gate 1 approval)
-
-```bash
-# In the sub-repo that needs changes
-git worktree add ../worktrees/carkedit-<feature-slug> -b dev/<feature-slug>
-cd ../worktrees/carkedit-<feature-slug>
-npm install
-
-# If this is a carkedit-client worktree, create a local config pointing at the feature API port:
-echo '{"serverUrl": "http://localhost:<API_PORT>"}' > config.json
-```
 
 ### Worktree Teardown (after Gate 3 merge)
 
@@ -167,19 +158,6 @@ Base port: `4500`. If occupied, increment by 1 until a free port is found.
 
 The client reads its API target from `config.json` (gitignored). Set this file in every
 client worktree to point at the correct API port. See Worktree Setup above.
-
----
-
-## Versioning
-
-<!-- Full policy: github.com/bh679/claude-templates/standards/versioning.md -->
-
-Format: `V.MM.PPPP`
-- Bump **PPPP** on every commit
-- Bump **MM** on every merged feature (reset PPPP to 0000)
-- Bump **V** only for breaking changes
-
-Update `package.json` version field on every commit.
 
 ---
 
@@ -224,6 +202,8 @@ After Gate 3 merge, update the relevant wiki:
 
 ## Key Rules Summary
 
+- **First action every session: check branch, create worktree if on main**
+- Never commit directly to `main` (hook in `.githooks/pre-commit` will block it)
 - Always use plan mode for all three gates
 - Never merge without Gate 3 approval
 - **Gates apply to ALL changes — bug fixes, hotfixes, one-liners, and fully-specified tasks**
