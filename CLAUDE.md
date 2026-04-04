@@ -37,10 +37,9 @@ One feature per session. Never work on multiple features simultaneously.
 
 ### Before ANY Implementation
 
-1. Discover session ID: `ls -lt ~/.claude/projects/ | head -20`
-2. Set session title: `PLAN - <task name> - CarkedItOnline`
-3. Search project board for existing items
-4. Enter plan mode (Gate 1)
+1. Search project board for existing items
+2. Enter plan mode (Gate 1)
+3. Make worktrees and branches for each repo changes are made in
 
 ---
 
