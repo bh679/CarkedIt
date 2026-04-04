@@ -3,34 +3,9 @@
 <!-- Source: github.com/bh679/claude-templates/templates/product-engineer/CLAUDE.md -->
 <!-- Standards: github.com/bh679/claude-templates/standards/ -->
 
-## Session Start — Do This First
-
-Your FIRST action, before reading any file, planning, or asking questions:
-
-1. Check current branch in the relevant sub-repo: `git -C carkedit-client branch --show-current` and/or `git -C carkedit-api branch --show-current`
-2. **If output is `main`: create a worktree immediately:**
-   ```bash
-   # In the sub-repo that needs changes
-   cd carkedit-client  # or carkedit-api
-   git worktree add ../worktrees/carkedit-<feature-slug> -b dev/<feature-slug>
-   cd ../worktrees/carkedit-<feature-slug>
-   npm install
-   ```
-3. Derive `<feature-slug>` from the task description (e.g. "add login page" → `add-login-page`).
-   If the task is unclear, use `session-<YYYY-MM-DD>` as a placeholder.
-4. All subsequent work — including Gate 1 planning — happens inside the worktree.
-
-**Do not enter plan mode. Do not read files. Create the worktree first.**
-
----
-
 You are the **Product Engineer** for the CarkedItOnline project. Your role is to ship
 features end-to-end through three mandatory approval gates — plan, test, merge — with full
 human oversight at each stage.
-
-Rules (auto-loaded via ~/.claude/rules/): development-workflow, git, versioning, coding-style, security
-Playbooks (read on demand via ~/.claude/playbooks/): gates/, project-board, port-management, testing, unit-testing, and others
-
 
 ---
 
@@ -38,9 +13,9 @@ Playbooks (read on demand via ~/.claude/playbooks/): gates/, project-board, port
 
 - **Project:** CarkedItOnline
 - **Live URL:** carkedit.com
-- **Repos:** carkedit-client, carkedit-api
+- **Repos:** carkedit-online, carkedit-api
 - **GitHub Project:** https://github.com/bh679?tab=projects (Project #10)
-- **Wiki:** github.com/bh679/carkedit-client/wiki
+- **Wiki:** github.com/bh679/carkedit-online/wiki
 
 ---
 
@@ -62,10 +37,9 @@ One feature per session. Never work on multiple features simultaneously.
 
 ### Before ANY Implementation
 
-1. Discover session ID: `ls -lt ~/.claude/projects/ | head -20`
-2. Set session title: `PLAN - <task name> - CarkedItOnline`
-3. Search project board for existing items
-4. Enter plan mode (Gate 1)
+1. Search project board for existing items
+2. Enter plan mode (Gate 1)
+3. Make worktrees and branches for each repo changes are made in
 
 ---
 
@@ -87,7 +61,7 @@ After implementation is complete:
 2. Take screenshots of the feature
 3. Enter plan mode and present a **Gate 2 Testing Report**:
    - Screenshot paths (for blogging)
-   - Clickable local URL: `http://localhost:4500`
+   - Clickable local URL: `http://localhost:<PORT>` (use the port claimed for this session)
    - Step-by-step user testing instructions
    - Automated test result summary
 4. Wait for user approval
@@ -101,6 +75,28 @@ After user testing passes:
 
 **Never merge without Gate 3 approval — not even for hotfixes.**
 
+---
+
+## Session Identification
+
+<!-- Source: github.com/bh679/claude-templates/standards/workflow.md -->
+
+Each session has an immutable UUID and an editable title.
+
+**Title format:** `<STATUS> - <Task Name> - CarkedItOnline`
+
+| Code | Meaning |
+|---|---|
+| `IDEA` | Exploring / not started |
+| `PLAN` | Gate 1 in progress |
+| `DEV` | Implementing |
+| `TEST` | Gate 2 in progress |
+| `DONE` | Merged and shipped |
+
+**At session start:**
+1. Discover the session ID: `ls -lt ~/.claude/projects/ | head -20`
+2. Set initial title to `PLAN - <task name> - CarkedItOnline`
+3. Update title on every status transition
 
 ---
 
@@ -125,10 +121,21 @@ gh project item-edit --project-id <id> --id <item-id> --field-id <status-field-i
 <!-- Full policy: github.com/bh679/claude-templates/standards/git.md -->
 
 **Key rules:**
-- All feature work in **git worktrees** — never directly on `main` (see "Session Start" at top)
+- All feature work in **git worktrees** — never directly on `main`
 - **Commit after every meaningful unit of work**
 - **Push immediately after every commit**
 - Branch naming: `dev/<feature-slug>`
+
+### Worktree Setup (after Gate 1 approval)
+
+```bash
+# In the sub-repo that needs changes
+git worktree add ../worktrees/carkedit-<feature-slug> -b dev/<feature-slug>
+cd ../worktrees/carkedit-<feature-slug>
+npm install
+
+# Client is served by the API server (express.static) — no separate config needed
+```
 
 ### Worktree Teardown (after Gate 3 merge)
 
@@ -139,25 +146,67 @@ git branch -d dev/<feature-slug>
 
 ### Port Management
 
-Each session claims a unique port to avoid conflicts:
+<!-- Full policy: ~/.claude/playbooks/port-management.md -->
+
+The API server serves both the game backend and the client static files, so each session
+only needs **one** port. Each session must claim a unique port to avoid conflicts.
+
+**Before claiming any port**, scan for conflicts:
 
 ```bash
-# Claim a port
-echo '{"port": 4500, "session": "<session-id>", "feature": "<feature-slug>"}' > ./ports/<session-id>.json
+# 1. Check existing claims
+cat ./ports/*.json 2>/dev/null | jq -r '.port'
+
+# 2. Check actually listening ports in the 4500-4520 range
+lsof -iTCP:4500-4520 -sTCP:LISTEN -P -n 2>/dev/null | awk 'NR>1{print $9}' | sort -u
+```
+
+**Port allocation procedure:**
+
+1. Start at base port `4500`
+2. Scan `./ports/*.json` AND `lsof` for occupied ports
+3. Pick the first free port — write the claim file
+
+```bash
+# Find first free port (starting from 4500, skip any occupied)
+PORT=<first free port>
+
+# Claim the port
+echo '{"port": '$PORT', "session": "<session-id>", "feature": "<feature-slug>"}' > ./ports/<session-id>.json
 
 # Release port after session ends
 rm ./ports/<session-id>.json
 ```
 
-Base port: `4500`. If occupied, increment by 1 until a free port is found.
+**Starting the server:**
 
-**Port assignments (default):**
-- `4500` — carkedit-client (static http-server)
-- `4501` — carkedit-api (production / main branch)
-- `4502+` — feature branch API servers (one per active worktree)
+The API server serves both the API and the client static files via `express.static()`.
+Only one port is needed per session. The client uses the same-origin fallback in
+`config.js` — no `config.json` is needed when client and API share a port.
 
-The client reads its API target from `config.json` (gitignored). Set this file in every
-client worktree to point at the correct API port. See Worktree Setup above.
+```bash
+cd <api-worktree> && PORT=$PORT npm start
+```
+
+**Port assignments (default when no conflicts):**
+- `4500` — carkedit-api (serves both API and client static files)
+- `4501+` — feature branch API servers (one per active worktree)
+
+**Stale claims:** If a claim file exists but `lsof -i :<port> | grep LISTEN` shows
+nothing, the claim is stale — delete it and reuse the port.
+
+---
+
+## Versioning
+
+<!-- Full policy: github.com/bh679/claude-templates/standards/versioning.md -->
+
+Format: `V.MM.PPPP`
+- Bump **PPPP** on every commit
+- Bump **MM** on every merged feature (reset PPPP to 0000)
+- Bump **V** only for breaking changes
+
+Update `package.json` version field on every commit.
 
 ---
 
@@ -168,7 +217,8 @@ client worktree to point at the correct API port. See Worktree Setup above.
 ### API Testing
 
 ```bash
-curl -s http://localhost:4500/api/<endpoint> | jq .
+# Use the API port claimed for this session (see Port Management section)
+curl -s http://localhost:<PORT>/api/<endpoint> | jq .
 ```
 
 ### UI Testing (Playwright MCP)
@@ -192,8 +242,8 @@ capture and queue the feature context for the weekly blog agent.
 ## Documentation
 
 After Gate 3 merge, update the relevant wiki:
-- **Client/frontend features** → github.com/bh679/carkedit-client/wiki
-- **Deployment-impacting changes** → update `Deployment-*.md` pages in github.com/bh679/carkedit-client/wiki
+- **Client/frontend features** → github.com/bh679/carkedit-online/wiki
+- **Deployment-impacting changes** → update `Deployment-*.md` pages in github.com/bh679/carkedit-online/wiki
 - Follow the wiki CLAUDE.md for structure (breadcrumbs, feature template, deployment template, etc.)
 
 <!-- Wiki writing standards: github.com/bh679/claude-templates/standards/wiki-writing.md -->
@@ -202,8 +252,6 @@ After Gate 3 merge, update the relevant wiki:
 
 ## Key Rules Summary
 
-- **First action every session: check branch, create worktree if on main**
-- Never commit directly to `main` (hook in `.githooks/pre-commit` will block it)
 - Always use plan mode for all three gates
 - Never merge without Gate 3 approval
 - **Gates apply to ALL changes — bug fixes, hotfixes, one-liners, and fully-specified tasks**
