@@ -6,3 +6,6 @@ playwright-report/
 carkedit-online/
 carkedit-api/
 carkedit-online.wiki/
+.claude/launch.json
+.claude/proxy-server.py
+.claude/start-server.sh
