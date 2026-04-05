@@ -50,8 +50,8 @@ CREATE INDEX IF NOT EXISTS idx_packs_visibility_status ON expansion_packs(visibi
 CREATE TABLE IF NOT EXISTS expansion_cards (
   id TEXT PRIMARY KEY,
   pack_id TEXT NOT NULL REFERENCES expansion_packs(id) ON DELETE CASCADE,
-  deck_type TEXT NOT NULL CHECK(deck_type IN ('die', 'living', 'bye')),
-  card_text TEXT NOT NULL,
+  deck_type TEXT NOT NULL CHECK(deck_type IN ('die', 'live', 'bye')),
+  text TEXT NOT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -91,8 +91,8 @@ export interface ExpansionPack {
 export interface ExpansionCard {
   id: string;
   pack_id: string;
-  deck_type: 'die' | 'living' | 'bye';
-  card_text: string;
+  deck_type: 'die' | 'live' | 'bye';
+  text: string;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -199,7 +199,7 @@ Returns pack with all cards.
 {
   ...pack,
   "cards": [
-    { "id": "card_uuid", "deck_type": "die", "card_text": "...", "sort_order": 0, ... }
+    { "id": "card_uuid", "deck_type": "die", "text": "...", "sort_order": 0, ... }
   ]
 }
 ```
@@ -236,8 +236,8 @@ Supports single or batch card creation.
 ```json
 {
   "cards": [
-    { "deck_type": "die", "card_text": "You died from excessive laughter" },
-    { "deck_type": "living", "card_text": "Learn to juggle chainsaws" }
+    { "deck_type": "die", "text": "You died from excessive laughter" },
+    { "deck_type": "live", "text": "Learn to juggle chainsaws" }
   ]
 }
 ```
@@ -246,7 +246,7 @@ Supports single or batch card creation.
 ```json
 {
   "cards": [
-    { "id": "card_uuid1", "pack_id": "pack_uuid", "deck_type": "die", "card_text": "...", "sort_order": 0, ... },
+    { "id": "card_uuid1", "pack_id": "pack_uuid", "deck_type": "die", "text": "...", "sort_order": 0, ... },
     { "id": "card_uuid2", ... }
   ]
 }
@@ -259,7 +259,7 @@ Supports single or batch card creation.
 **Request:**
 ```json
 {
-  "card_text": "Updated card text",
+  "text": "Updated card text",
   "deck_type": "bye",
   "sort_order": 3
 }
@@ -325,7 +325,7 @@ curl -s -X POST http://localhost:$PORT/api/carkedit/packs \
 PACK_ID="<from above>"
 curl -s -X POST http://localhost:$PORT/api/carkedit/packs/$PACK_ID/cards \
   -H "Content-Type: application/json" \
-  -d '{"cards": [{"deck_type": "die", "card_text": "Test death"}, {"deck_type": "living", "card_text": "Test life"}]}' | jq .
+  -d '{"cards": [{"deck_type": "die", "text": "Test death"}, {"deck_type": "live", "text": "Test life"}]}' | jq .
 
 # Get pack with cards
 curl -s http://localhost:$PORT/api/carkedit/packs/$PACK_ID | jq .
