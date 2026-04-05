@@ -195,6 +195,26 @@ cd <api-worktree> && PORT=$PORT npm start
 **Stale claims:** If a claim file exists but `lsof -i :<port> | grep LISTEN` shows
 nothing, the claim is stale — delete it and reuse the port.
 
+### Dev Server Config (launch.json)
+
+`.claude/launch.json` is **shared across all worktree sessions**. When adding a server
+configuration, you MUST **merge** into the existing file — never overwrite it.
+
+**Procedure:**
+1. Read the existing `.claude/launch.json` (it may already have entries from other sessions)
+2. Check if a configuration with your `name` already exists — update it if so
+3. Otherwise, append your configuration to the `configurations` array
+4. Write back the complete file with ALL existing entries preserved
+
+```bash
+# Use jq to safely merge a new config into the existing file
+jq --argjson new '{"name":"<feature>","runtimeExecutable":"/opt/homebrew/bin/node","runtimeArgs":["node_modules/.bin/tsx","src/index.ts"],"port":<PORT>,"autoPort":false,"cwd":"<api-worktree>","env":{"PORT":"<PORT>","CLIENT_DIR":"<client-worktree>"}}' \
+  '.configurations = [(.configurations // [] | map(select(.name != $new.name)))[]] + [$new]' \
+  .claude/launch.json > .claude/launch.json.tmp && mv .claude/launch.json.tmp .claude/launch.json
+```
+
+**Cleanup:** After Gate 3 merge, remove your configuration entry from `launch.json`.
+
 ---
 
 ## Versioning
