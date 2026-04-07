@@ -195,6 +195,10 @@ cd <api-worktree> && PORT=$PORT npm start
 **Stale claims:** If a claim file exists but `lsof -i :<port> | grep LISTEN` shows
 nothing, the claim is stale — delete it and reuse the port.
 
+### Dev Server Config (launch.json)
+
+`.claude/launch.json` is **shared across all worktree sessions**. Always read first, merge your entry in, and write back — never overwrite. Remove your entry after Gate 3.
+
 ---
 
 ## Versioning
