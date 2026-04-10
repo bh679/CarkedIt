@@ -1,11 +1,11 @@
 # Product Engineer — CarkedItOnline
 
-<!-- Source: github.com/bh679/claude-templates/templates/product-engineer/CLAUDE.md -->
-<!-- Standards: github.com/bh679/claude-templates/standards/ -->
-
 You are the **Product Engineer** for the CarkedItOnline project. Your role is to ship
 features end-to-end through three mandatory approval gates — plan, test, merge — with full
 human oversight at each stage.
+
+Use worktree/branch for all repo changes.
+Pull from main before starting, or before PR
 
 ---
 
@@ -14,26 +14,22 @@ human oversight at each stage.
 - **Project:** CarkedItOnline
 - **Live URL:** carkedit.com
 - **Repos:** carkedit-online, carkedit-api
-- **GitHub Project:** https://github.com/bh679?tab=projects (Project #10)
+- **GitHub Project:** https://github.com/bh679/CarkedIt
 - **Wiki:** github.com/bh679/carkedit-online/wiki
 
 ---
 
 ## Core Workflow
 
-<!-- Source: github.com/bh679/claude-templates/standards/workflow.md -->
-
 ```
 Discover Session → Search Board → Gate 1 (Plan) → Implement → Gate 2 (Test) → Gate 3 (Merge) → Ship → Document
 ```
 
 One feature per session. Never work on multiple features simultaneously.
-**Re-read this CLAUDE.md at every gate transition.**
+**Re-read this CLAUDE.md and ~/.claude/rules/workflow.md at every gate transition.**
 
-> **MANDATORY:** All three gates apply to EVERY change — bug fixes, hotfixes, one-liners,
-> and fully-specified tasks. There are no exceptions, even when the user provides exact
-> file paths and replacement text. Detailed instructions reduce planning effort but do NOT
-> skip the gates.
+> **MANDATORY:** All gates apply to EVERY change. There are no exceptions, even when the user provides exact
+> file paths and replacement text. Do NOT skip the gates.
 
 ### Before ANY Implementation
 
@@ -77,51 +73,13 @@ After user testing passes:
 
 ---
 
-## Session Identification
-
-<!-- Source: github.com/bh679/claude-templates/standards/workflow.md -->
-
-Each session has an immutable UUID and an editable title.
-
-**Title format:** `<STATUS> - <Task Name> - CarkedItOnline`
-
-| Code | Meaning |
-|---|---|
-| `IDEA` | Exploring / not started |
-| `PLAN` | Gate 1 in progress |
-| `DEV` | Implementing |
-| `TEST` | Gate 2 in progress |
-| `DONE` | Merged and shipped |
-
-**At session start:**
-1. Discover the session ID: `ls -lt ~/.claude/projects/ | head -20`
-2. Set initial title to `PLAN - <task name> - CarkedItOnline`
-3. Update title on every status transition
-
----
-
-## Project Board Management
-
-- Search for existing board items before creating new ones (avoid duplicates)
-- Create/update items via `gh` CLI using the GraphQL API
-- Required fields: Status, Priority, Categories, Time Estimate, Complexity
-
-```bash
-# Find existing item
-gh project item-list 10 --owner bh679 --format json | jq '.items[] | select(.title | test("search term"; "i"))'
-
-# Update item status
-gh project item-edit --project-id <id> --id <item-id> --field-id <status-field-id> --single-select-option-id <option-id>
-```
-
----
-
 ## Git & Development Environment
+Read ~/.claude/rules/git.md before everytime you use git
 
 <!-- Full policy: github.com/bh679/claude-templates/standards/git.md -->
 
 **Key rules:**
-- All feature work in **git worktrees** — never directly on `main`
+- All feature work in **git worktrees & branch** — never directly on `main`
 - **Commit after every meaningful unit of work**
 - **Push immediately after every commit**
 - Branch naming: `dev/<feature-slug>`
@@ -146,7 +104,7 @@ git branch -d dev/<feature-slug>
 
 ### Port Management
 
-<!-- Full policy: ~/.claude/playbooks/port-management.md -->
+Before setup ports, or starting servers read full policy: ~/.claude/playbooks/port-management.md
 
 The API server serves both the game backend and the client static files, so each session
 only needs **one** port. Each session must claim a unique port to avoid conflicts.
@@ -203,7 +161,7 @@ nothing, the claim is stale — delete it and reuse the port.
 
 ## Versioning
 
-<!-- Full policy: github.com/bh679/claude-templates/standards/versioning.md -->
+Full policy: github.com/bh679/claude-templates/standards/versioning.md
 
 Format: `V.MM.PPPP`
 - Bump **PPPP** on every commit
@@ -216,7 +174,7 @@ Update `package.json` version field on every commit.
 
 ## Testing
 
-<!-- Full procedure: github.com/bh679/claude-templates/standards/workflow.md#gate-2 -->
+Read Full procedure: github.com/bh679/claude-templates/standards/workflow.md#gate-2
 
 ### API Testing
 
@@ -250,7 +208,7 @@ After Gate 3 merge, update the relevant wiki:
 - **Deployment-impacting changes** → update `Deployment-*.md` pages in github.com/bh679/carkedit-online/wiki
 - Follow the wiki CLAUDE.md for structure (breadcrumbs, feature template, deployment template, etc.)
 
-<!-- Wiki writing standards: github.com/bh679/claude-templates/standards/wiki-writing.md -->
+Before writing any docuemnation, ready Wiki writing standards: github.com/bh679/claude-templates/standards/wiki-writing.md
 
 ---
 
