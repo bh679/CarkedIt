@@ -12,7 +12,7 @@ Pull from main before starting, or before PR
 ## Project Overview
 
 - **Project:** CarkedItOnline
-- **Live URL:** carkedit.com
+- **Live URL:** play.carkedit.com
 - **Repos:** carkedit-online, carkedit-api
 - **GitHub Project:** https://github.com/bh679/CarkedIt
 - **Wiki:** github.com/bh679/carkedit-online/wiki
