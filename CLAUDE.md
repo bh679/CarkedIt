@@ -104,54 +104,17 @@ git branch -d dev/<feature-slug>
 
 ### Port Management
 
-Before setup ports, or starting servers read full policy: ~/.claude/playbooks/port-management.md
+**MANDATORY:** Before claiming, releasing, or starting any dev server port,
+you MUST read `~/.claude/playbooks/port-management.md` first. Do not rely on
+memory or summaries of this file — read it fresh each time.
 
 The API server serves both the game backend and the client static files, so each session
-only needs **one** port. Each session must claim a unique port to avoid conflicts.
-
-**Before claiming any port**, scan for conflicts:
-
-```bash
-# 1. Check existing claims
-cat ./ports/*.json 2>/dev/null | jq -r '.port'
-
-# 2. Check actually listening ports in the 4500-4520 range
-lsof -iTCP:4500-4520 -sTCP:LISTEN -P -n 2>/dev/null | awk 'NR>1{print $9}' | sort -u
-```
-
-**Port allocation procedure:**
-
-1. Start at base port `4500`
-2. Scan `./ports/*.json` AND `lsof` for occupied ports
-3. Pick the first free port — write the claim file
-
-```bash
-# Find first free port (starting from 4500, skip any occupied)
-PORT=<first free port>
-
-# Claim the port
-echo '{"port": '$PORT', "session": "<session-id>", "feature": "<feature-slug>"}' > ./ports/<session-id>.json
-
-# Release port after session ends
-rm ./ports/<session-id>.json
-```
-
-**Starting the server:**
-
-The API server serves both the API and the client static files via `express.static()`.
-Only one port is needed per session. The client uses the same-origin fallback in
+only needs **one** port. Each session must claim a unique port to avoid conflicts. The client uses the same-origin fallback in
 `config.js` — no `config.json` is needed when client and API share a port.
 
 ```bash
 cd <api-worktree> && PORT=$PORT npm start
 ```
-
-**Port assignments (default when no conflicts):**
-- `4500` — carkedit-api (serves both API and client static files)
-- `4501+` — feature branch API servers (one per active worktree)
-
-**Stale claims:** If a claim file exists but `lsof -i :<port> | grep LISTEN` shows
-nothing, the claim is stale — delete it and reuse the port.
 
 ### Dev Server Config (launch.json)
 
@@ -161,7 +124,7 @@ nothing, the claim is stale — delete it and reuse the port.
 
 ## Versioning
 
-Full policy: github.com/bh679/claude-templates/standards/versioning.md
+you MUST read github.com/bh679/claude-templates/standards/versioning.md
 
 Format: `V.MM.PPPP`
 - Bump **PPPP** on every commit
@@ -174,7 +137,7 @@ Update `package.json` version field on every commit.
 
 ## Testing
 
-Read Full procedure: github.com/bh679/claude-templates/standards/workflow.md#gate-2
+Before testing you MUST read ~/.claude/playbooks/testing.md & ~/.claude/playbooks/unit-testing.md
 
 ### API Testing
 
@@ -203,12 +166,13 @@ capture and queue the feature context for the weekly blog agent.
 
 ## Documentation
 
+**MANDATORY:** Before writing any docuemnation, ready Wiki writing standards: ~/.claude/playbooks/wiki-writing.md
+
 After Gate 3 merge, update the relevant wiki:
 - **Client/frontend features** → github.com/bh679/carkedit-online/wiki
 - **Deployment-impacting changes** → update `Deployment-*.md` pages in github.com/bh679/carkedit-online/wiki
 - Follow the wiki CLAUDE.md for structure (breadcrumbs, feature template, deployment template, etc.)
 
-Before writing any docuemnation, ready Wiki writing standards: github.com/bh679/claude-templates/standards/wiki-writing.md
 
 ---
 
