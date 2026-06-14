@@ -1,6 +1,6 @@
 {
   "name": "carkedit",
-  "version": "1.00.0001",
+  "version": "1.00.0002",
   "description": "Project-level configuration for CarkedItOnline. Contains the Product Engineer agent instructions, permissions, and test configuration.",
   "main": "index.js",
   "scripts": {

@@ -50,30 +50,32 @@ deny() {
   exit 2
 }
 
-# Note: patterns use `(^|[[:space:]])` rather than `\b` for word boundaries —
-# BSD grep/sed on macOS does not reliably support `\b`.
+# Boundaries use POSIX classes, not `\b` (BSD grep/sed on macOS doesn't reliably
+# support `\b`). Dangerous verbs are anchored to a COMMAND position — start of
+# line, or right after a shell separator ( ; & | ( { ) — so a tag/push/release
+# merely MENTIONED in prose (a `commit -m` / `pr --body` message) is not mistaken
+# for a real invocation. For long messages that contain literal example commands,
+# pass them via a body/message file so they aren't part of the command string.
+BNDRY='(^|[;&|({])[[:space:]]*'
 
 # ── 1. Pushing a tag ────────────────────────────────────────────────────────
-# Any push carrying a tag triggers a deploy. Catch the flag forms, an explicit
-# refs/tags/ refspec, or a v<version> token anywhere (handles `cd x && git push …`).
-if printf '%s' "$CMD" | grep -Eq '(^|[[:space:]])git[[:space:]][^|;&]*push'; then
-  if printf '%s' "$CMD" | grep -Eq -- '(--tags|--follow-tags|refs/tags/|(^|[[:space:]/])vs?[0-9]+(\.[0-9]+)*([[:space:]]|$))'; then
-    deny "pushing a git tag triggers a production/staging deploy (v* = prod, vs* = staging)."
-  fi
+# An actual `git push` (incl. `cd … && git push`) whose args carry a tag:
+# --tags / --follow-tags / an explicit refs/tags/ refspec / a v* or vs* ref.
+if printf '%s' "$CMD" | grep -Eq "${BNDRY}git[[:space:]]+push[[:space:]][^;&|]*(--tags|--follow-tags|refs/tags/|[[:space:]/]vs?[0-9]+(\.[0-9]+)*([[:space:]]|\$))"; then
+  deny "pushing a git tag triggers a production/staging deploy (v* = prod, vs* = staging)."
 fi
 
 # ── 2. Creating / deleting / moving a tag ───────────────────────────────────
-# `git tag` followed by a create/delete/move flag OR a bare tag name (the first
-# token after `git tag ` is not a dash-flag and not a shell operator). Read-only
-# forms stay allowed: bare `git tag`, and `-l/--list/-n/--contains/--points-at/
-# --sort/--format/--merged/-v/--verify`, plus `git tag | grep …` / `git tag > f`.
-if printf '%s' "$CMD" | grep -Eq '(^|[[:space:]])git[[:space:]]+tag[[:space:]]+(-a|-s|-d|-f|-m|-F|-u|--annotate|--sign|--delete|--force|--message|--file|--local-user|--create-reflog|[^-[:space:]|;&<>()])'; then
+# An actual `git tag` with a create/delete/move flag OR a bare tag name. Read-
+# only forms stay allowed: bare `git tag`, -l/--list/-n/--contains/--points-at/
+# --sort/--format/--merged/-v/--verify, and `git tag | grep …` / `git tag > f`.
+if printf '%s' "$CMD" | grep -Eq "${BNDRY}git[[:space:]]+tag[[:space:]]+(-a|-s|-d|-f|-m|-F|-u|--annotate|--sign|--delete|--force|--message|--file|--local-user|--create-reflog|[^-[:space:]|;&<>()])"; then
   deny "creating, moving, or deleting a git tag is disabled (a v* tag auto-deploys). 'git tag -l' listing is still allowed."
 fi
 
 # ── 3. Cutting a GitHub release ─────────────────────────────────────────────
 # A GitHub release publishes a tag → deploy.
-if printf '%s' "$CMD" | grep -Eq '(^|[[:space:]])gh[[:space:]]+release[[:space:]]+(create|delete|edit)'; then
+if printf '%s' "$CMD" | grep -Eq "${BNDRY}gh[[:space:]]+release[[:space:]]+(create|delete|edit)"; then
   deny "creating/editing a GitHub release publishes a tag and triggers a deploy."
 fi
 
